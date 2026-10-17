@@ -1,0 +1,49 @@
+[
+  {
+    "url": "https://api.github.com/repos/vllm-project/vllm/issues/comments/5357015225",
+    "html_url": "https://github.com/vllm-project/vllm/issues/53116#issuecomment-5357015225",
+    "issue_url": "https://api.github.com/repos/vllm-project/vllm/issues/53116",
+    "id": 5357015225,
+    "node_id": "IC_kwDOI7xefs8AAAABP02QuQ",
+    "user": {
+      "login": "jschmied",
+      "id": 600316,
+      "node_id": "MDQ6VXNlcjYwMDMxNg==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/600316?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/jschmied",
+      "html_url": "https://github.com/jschmied",
+      "followers_url": "https://api.github.com/users/jschmied/followers",
+      "following_url": "https://api.github.com/users/jschmied/following{/other_user}",
+      "gists_url": "https://api.github.com/users/jschmied/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/jschmied/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/jschmied/subscriptions",
+      "organizations_url": "https://api.github.com/users/jschmied/orgs",
+      "repos_url": "https://api.github.com/users/jschmied/repos",
+      "events_url": "https://api.github.com/users/jschmied/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/jschmied/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "created_at": "2026-08-20T14:07:29Z",
+    "updated_at": "2026-08-20T14:11:41Z",
+    "body": "**Follow-up: with the mapping fixed, a second limit shows up right behind it.** Both are in released 0.27.1 — `_build_context_kv_buffers` is unchanged there.\n\nThe draft model now loads quantized, and fails in the first forward:\n\n```\nRuntimeError: expected mat1 and mat2 to have the same dtype,\n              but got: c10::BFloat16 != c10::Float8_e4m3fn\n  qwen3_dflash.py, DFlashQwen3Model._project_context_kv -> F.linear(...)\n```\n\n`_build_context_kv_buffers()` fuses the K/V rows of every layer into one matrix for a single GEMM:\n\n```python\nkv_weights = [a.qkv_proj.weight[a.q_size:] for a in layers_attn]\n```\n\nThis reads the raw parameter, so it breaks twice on a quantized `qkv_proj`: the dtype is FP8, and `process_weights_after_loading` has transposed the weight to `[in, out]`, so the slice cuts along the input dimension. With hidden 5120 / qkv 6144 the fused matrix comes out `[5120, 6144]` and `F.linear` then rejects it on shape — the dtype error just fires first.\n\nThat is a design limit of the fused path, not an oversight, so the useful change is a clear refusal at buffer-build time rather than two PyTorch errors mid-forward — `DFlashQwen3Model._build_context_kv_buffers()`, before the weights are sliced:\n\n```diff\n     def _build_context_kv_buffers(\n         self,\n         layers_attn: list[nn.Module],\n         has_bias: bool,\n     ) -> None:\n         self._hidden_norm_weight = self.hidden_norm.weight.data\n\n+        if layers_attn[0].qkv_proj.weight.dtype != self._hidden_norm_weight.dtype:\n+            raise NotImplementedError(\n+                \"DFlash's fused context-KV projection reads qkv_proj.weight \"\n+                \"directly and cannot handle a quantized draft model: the dtype \"\n+                \"differs, and process_weights_after_loading has transposed the \"\n+                \"weight to [in, out], so the q_size slice below cuts the wrong \"\n+                \"dimension.\"\n+            )\n+\n         # KV projection weights: [num_layers * 2 * kv_size, hidden_size]\n         kv_weights = [a.qkv_proj.weight[a.q_size :] for a in layers_attn]\n         self._fused_kv_weight = torch.cat(kv_weights, dim=0)\n```",
+    "author_association": "CONTRIBUTOR",
+    "pin": null,
+    "reactions": {
+      "url": "https://api.github.com/repos/vllm-project/vllm/issues/comments/5357015225/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "performed_via_github_app": null,
+    "minimized": null
+  }
+]

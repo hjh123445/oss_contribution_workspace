@@ -1,0 +1,92 @@
+{
+  "url": "https://api.github.com/repos/sgl-project/sglang/issues/37585",
+  "repository_url": "https://api.github.com/repos/sgl-project/sglang",
+  "labels_url": "https://api.github.com/repos/sgl-project/sglang/issues/37585/labels{/name}",
+  "comments_url": "https://api.github.com/repos/sgl-project/sglang/issues/37585/comments",
+  "events_url": "https://api.github.com/repos/sgl-project/sglang/issues/37585/events",
+  "html_url": "https://github.com/sgl-project/sglang/issues/37585",
+  "id": 5322233381,
+  "node_id": "I_kwDOLCAjRs8AAAABPTrWJQ",
+  "number": 37585,
+  "title": "[Bug] Eager hybrid target verify fails when TP padding breaks fixed-width request groups",
+  "user": {
+    "login": "HanHan009527",
+    "id": 54751605,
+    "node_id": "MDQ6VXNlcjU0NzUxNjA1",
+    "avatar_url": "https://avatars.githubusercontent.com/u/54751605?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/HanHan009527",
+    "html_url": "https://github.com/HanHan009527",
+    "followers_url": "https://api.github.com/users/HanHan009527/followers",
+    "following_url": "https://api.github.com/users/HanHan009527/following{/other_user}",
+    "gists_url": "https://api.github.com/users/HanHan009527/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/HanHan009527/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/HanHan009527/subscriptions",
+    "organizations_url": "https://api.github.com/users/HanHan009527/orgs",
+    "repos_url": "https://api.github.com/users/HanHan009527/repos",
+    "events_url": "https://api.github.com/users/HanHan009527/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/HanHan009527/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 6403845269,
+      "node_id": "LA_kwDOLCAjRs8AAAABfbLslQ",
+      "url": "https://api.github.com/repos/sgl-project/sglang/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "archived_at": null,
+      "archived_by": null
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 0,
+  "created_at": "2026-09-02T09:34:44Z",
+  "updated_at": "2026-09-08T09:04:39Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "COLLABORATOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "## Describe the bug\n\n**Eager target verification can terminate hybrid-attention workers when TP/MLP-sync padding produces an incomplete fixed-width request group.** This was originally observed in GLM-5.3-Flash KDA and independently reproduced in Qwen3.5-35B-A3B GDN on a main-based source. The shared failure does not require the GLM DSA KPool path.\n\nThe two layout requirements must hold together:\n\n- TP collectives require an aligned physical token count.\n- Fixed-width EAGLE/NEXTN verification requires complete groups of `D` tokens per request.\n\nThe affected eager preparation aligns only to the attention TP size `A`:\n\n```text\nL = B * D                         # real tokens\nP = ceil(L / A) * A                # physical tokens after TP padding\n```\n\nFor `B=38`, `D=6`, and `A=8`, this gives `L=228` and `P=232`. The 232 rows cannot be partitioned into complete six-token requests. On Qwen/GDN, all eight TP ranks failed with:\n\n```text\nRuntimeError: shape '[38, 6, -1]' is invalid for input of size 237568\n```\n\n`237568 = 232 * 1024`. The original GLM/KDA failure had the same geometry and a different channel width: `712704 = 232 * 3072`.\n\n## Trigger and CUDA Graph boundary\n\nThe demonstrated trigger is fixed-width hybrid target verify taking the eager path, with TP padding that leaves `P % D != 0`. Eager execution or padding alone is insufficient to cause this particular failure.\n\nCUDA Graph was enabled in the reproduction. A graph limit of 32 with a running-request limit of 64 allows batch 38 to fall back to eager naturally. Fixed-width graph replay instead prepares `graph_bucket_size * D` physical tokens, retaining complete request groups; the target reshape failure was not observed in capture or replay.\n\nClient concurrency is not the actual batch size at every verification step. A concurrency-39 workload initially ran at a valid batch geometry, then naturally shrank to batch 33 and failed. Choosing one initially divisible batch size does not make the whole workload safe.\n\n## Independent Qwen reproduction and controls\n\nTested affected source: `8ae962021dbb5eb8ee408c578e772c13e2c934fe`. Environment: Qwen/Qwen3.5-35B-A3B, BF16, 8x NVIDIA H20, TP8/EP8, attention-DP1, default Triton GDN, DeepEP/DeepGEMM, PyTorch 2.13.0+cu130 and CUDA runtime 13.0. The installed wheel's loaded source was checked against the commit.\n\nRelevant launch configuration, with `MODEL_PATH` pointing to the Qwen model:\n\n```bash\npython3 -m sglang.launch_server \\\n  --model-path \"$MODEL_PATH\" \\\n  --served-model-name qwen35 \\\n  --tp-size 8 \\\n  --moe-a2a-backend deepep \\\n  --moe-runner-backend deep_gemm \\\n  --max-running-requests 64 \\\n  --cuda-graph-max-bs-decode 32 \\\n  --context-length 4096 \\\n  --mem-fraction-static 0.75 \\\n  --speculative-algorithm NEXTN \\\n  --speculative-num-steps 5 \\\n  --speculative-eagle-topk 1 \\\n  --speculative-num-draft-tokens 6 \\\n  --decode-log-interval 1 \\\n  --host 127.0.0.1 --port 30187\n```\n\nAfter startup and warmup, submit 76 non-streaming completion requests at concurrency 38, without retries: 256-word synthetic prompts, `temperature=0`, `max_tokens=256`, and `ignore_eos=true`. A successful request must return HTTP 200 and exactly 256 completion tokens. Inspect the actual verify path and batch geometry rather than inferring them from a compiler setting or client concurrency.\n\nControls on the same affected source, hardware, and model:\n\n| Graph limit | Running limit | Client concurrency | Observed path / geometry | Request result |\n|---:|---:|---|---|---|\n| 32 | 64 | 32 | Graph | 64/64 succeeded |\n| 32 | 64 | 36 | Eager, 216 → 216 rows; complete groups | 72/72 succeeded |\n| 32 | 64 | 38 | Eager, 228 → 232 rows; incomplete group | 0/76; worker failure on all 8 ranks |\n| 32 | 64 | 39 | B39: 234 → 240 succeeds; later B33: 198 → 200 fails | 45/78 succeeded before failure |\n| 64 | 64 | 11 points, including 33/38/39/63/64 | All graph | 828/828 succeeded |\n| 32 | 32 | 38 and 64 | Actual batch stays ≤32, all graph | 204/204 succeeded |\n\nThese controls establish a conditional eager correctness failure. The graph results are compatibility evidence for this fixed-width path; they do not establish a graph performance benefit or cover every backend/layout.\n\n## Expected behavior and fix boundary\n\nShared batch preparation must preserve both TP alignment and complete fixed-width verify groups. Real request outputs and persistent state must remain correct; dummy requests must not access nonexistent state/tree metadata, and their physical output rows must be initialized before downstream layers consume them.\n\n#37587 addresses this at the shared MLP-sync boundary by aligning to `lcm(A, D)` before DP padding selection. In the example, 228 real tokens become 240 physical rows: 38 real requests plus two complete dummy requests. Its convolution, recurrent, and opt-in fused KDA kernels implement the corresponding dummy handling.\n\nThe earlier issue text prescribed trimming every backend to the real-token prefix. That was one implementation strategy, not the required invariant. Keeping physical rows is valid when request grouping, metadata, and dummy-state ownership remain consistent.\n\n**GLM DSA KPool has a separate request-plan boundary.** Its writer/read plan must use the real request domain even when surrounding tensors contain padding. #37588 tracks that model-specific correction and now has a separate main-based diff. It is not required to reproduce the Qwen shared failure above; complete GLM validation must also account for the KPool path. The two PRs cover separate parts of the original report.\n\n## Current status and evidence attribution — 2026-09-08\n\n- Code inspection at [main `ccfa120daec`](https://github.com/sgl-project/sglang/blob/ccfa120daecabab4b9b4d7e89ec82f41e071a7e9/python/sglang/srt/model_executor/forward_batch_info.py) still finds TP-only alignment in `prepare_mlp_sync_batch`. The current main was not rerun end to end; the negative runtime controls above remain bound to `8ae962021d`.\n- #37587 is open at `27a790d6b2`. Its installed wheel passed 30 focused tests and 7 subtests in a 1xH20 Pod. The fused dummy-output regression fails on parent `d2af7947e6` and passes on this revision; Compute Sanitizer reports 0 errors.\n- Earlier whole-group revision [`562b49517b`](https://github.com/bytedance-iaas/sglang/commit/562b49517b94d79e31c51929f5315c18762baabb) passed 500 eager/graph requests plus 396 graph requests, all HTTP 200 with exactly 256 completion tokens. These 896 requests were measured before the current rebase.\n- #37588 remains open at `03171e78c2`. Its focused and combined GLM validation are documented in that PR. The combined GLM run used an earlier shared-padding revision, so it does not establish end-to-end validation of both current PR heads together.\n\nThe results establish request completion and the targeted layout/state contracts. They do not establish model accuracy, universal performance gains, or complete SM100 and multi-attention-DP coverage.\n\n<details>\n<summary>Original GLM observation retained as historical evidence</summary>\n\nThe original reproduction used `zai-org/GLM-5.3-Flash` on support source `033446bb05f35c0943aed2750c443077ffc0b92c`: 8xH20, TP8/EP8/PP1, TileLang DSA, Triton KDA, BF16 KV cache, native EAGLE 5/1/6, graph limit 32 and running limit 64. At concurrency 32, 64/64 requests succeeded; at concurrency 38, 0/76 succeeded after the worker failure. The KDA reshape saw 232 rows where the logical input contained 228. Limiting running requests to 30 avoided that failing geometry.\n\nThis source is historical and distinct from the Qwen main-based control and current PR heads above. #35758 introduced the target-verify physical-row behavior discussed in the original report; the required correction is consistency of the full layout contract rather than mandatory trimming.\n\n</details>\n",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/sgl-project/sglang/issues/37585/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/sgl-project/sglang/issues/37585/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

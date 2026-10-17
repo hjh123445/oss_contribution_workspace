@@ -1,0 +1,114 @@
+{
+  "url": "https://api.github.com/repos/vllm-project/vllm/issues/53116",
+  "repository_url": "https://api.github.com/repos/vllm-project/vllm",
+  "labels_url": "https://api.github.com/repos/vllm-project/vllm/issues/53116/labels{/name}",
+  "comments_url": "https://api.github.com/repos/vllm-project/vllm/issues/53116/comments",
+  "events_url": "https://api.github.com/repos/vllm-project/vllm/issues/53116/events",
+  "html_url": "https://github.com/vllm-project/vllm/issues/53116",
+  "id": 5204227572,
+  "node_id": "I_kwDOI7xefs8AAAABNjI19A",
+  "number": 53116,
+  "title": "[Bug]: draft model quant config never receives packed_modules_mapping — fused projections are built unquantized",
+  "user": {
+    "login": "jschmied",
+    "id": 600316,
+    "node_id": "MDQ6VXNlcjYwMDMxNg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/600316?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jschmied",
+    "html_url": "https://github.com/jschmied",
+    "followers_url": "https://api.github.com/users/jschmied/followers",
+    "following_url": "https://api.github.com/users/jschmied/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jschmied/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jschmied/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jschmied/subscriptions",
+    "organizations_url": "https://api.github.com/users/jschmied/orgs",
+    "repos_url": "https://api.github.com/users/jschmied/repos",
+    "events_url": "https://api.github.com/users/jschmied/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jschmied/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 5135047172,
+      "node_id": "LA_kwDOI7xefs8AAAABMhKaBA",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "archived_at": null,
+      "archived_by": null
+    },
+    {
+      "id": 6915642480,
+      "node_id": "LA_kwDOI7xefs8AAAABnDRUcA",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/speculative-decoding",
+      "name": "speculative-decoding",
+      "color": "6A493C",
+      "default": false,
+      "description": "",
+      "archived_at": null,
+      "archived_by": null
+    },
+    {
+      "id": 9988761457,
+      "node_id": "LA_kwDOI7xefs8AAAACU2BncQ",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/quantization",
+      "name": "quantization",
+      "color": "62bfab",
+      "default": false,
+      "description": "",
+      "archived_at": null,
+      "archived_by": null
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 1,
+  "created_at": "2026-08-20T14:00:39Z",
+  "updated_at": "2026-08-20T14:11:41Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "CONTRIBUTOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Your current environment\n\n==============================\n        System Info\n==============================\nOS                           : Ubuntu 24.04.4 LTS (aarch64)\nGCC version                  : (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nClang version                : Could not collect\nCMake version                : version 3.28.3\nLibc version                 : glibc-2.39\n\n==============================\n       PyTorch Info\n==============================\nPyTorch version              : 2.13.0+cu130\nIs debug build               : False\nCUDA used to build PyTorch   : 13.0\nROCM used to build PyTorch   : N/A\nXPU used to build PyTorch    : N/A\n\n==============================\n      Python Environment\n==============================\nPython version               : 3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0] (64-bit runtime)\nPython platform              : Linux-6.17.0-1029-nvidia-aarch64-with-glibc2.39\n\n==============================\n       CUDA / GPU Info\n==============================\nIs CUDA available            : True\nCUDA runtime version         : 13.0.88\nCUDA_MODULE_LOADING set to   :\nGPU models and configuration : GPU 0: NVIDIA GB10\nNvidia driver version        : 580.173.02\ncuDNN version                : Could not collect\nHIP runtime version          : N/A\nMIOpen runtime version       : N/A\nIs XNNPACK available         : False\n\n==============================\n          CPU Info\n==============================\nArchitektur:                             aarch64\nCPU Operationsmodus:                     64-bit\nByte-Reihenfolge:                        Little Endian\nCPU(s):                                  20\nListe der Online-CPU(s):                 0-19\nAnbieterkennung:                         ARM\nModellname:                              Cortex-X925\nModell:                                  1\nThread(s) pro Kern:                      1\nKern(e) pro Sockel:                      10\nSockel:                                  1\nStepping:                                r0p1\nÜbertaktung:                             deaktiviert\nSkalierung der CPU(s):                   100%\nMaximale Taktfrequenz der CPU:           3900,0000\nMinimale Taktfrequenz der CPU:           1378,0000\nBogoMIPS:                                2000,00\nMarkierungen:                            fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 sm3 sm4 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 svesm4 flagm2 frint svei8mm svebf16 i8mm bf16 dgh bti ecv afp wfxt\nModellname:                              Cortex-A725\nModell:                                  1\nThread(s) pro Kern:                      1\nKern(e) pro Sockel:                      10\nSockel:                                  1\nStepping:                                r0p1\nSkalierung der CPU(s):                   100%\nMaximale Taktfrequenz der CPU:           2808,0000\nMinimale Taktfrequenz der CPU:           338,0000\nBogoMIPS:                                2000,00\nMarkierungen:                            fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 sm3 sm4 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitp\nerm svesha3 svesm4 flagm2 frint svei8mm svebf16 i8mm bf16 dgh bti ecv afp wfxt\nL1d Cache:                               1,3 MiB (20 Instanzen)\nL1i Cache:                               1,3 MiB (20 Instanzen)\nL2 Cache:                                25 MiB (20 Instanzen)\nL3 Cache:                                24 MiB (2 Instanzen)\nNUMA-Knoten:                             1\nNUMA-Knoten0 CPU(s):                     0-19\nSchwachstelle Gather data sampling:      Not affected\nSchwachstelle Ghostwrite:                Not affected\nSchwachstelle Indirect target selection: Not affected\nSchwachstelle Itlb multihit:             Not affected\nSchwachstelle L1tf:                      Not affected\nSchwachstelle Mds:                       Not affected\nSchwachstelle Meltdown:                  Not affected\nSchwachstelle Mmio stale data:           Not affected\nSchwachstelle Old microcode:             Not affected\nSchwachstelle Reg file data sampling:    Not affected\nSchwachstelle Retbleed:                  Not affected\nSchwachstelle Spec rstack overflow:      Not affected\nSchwachstelle Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nSchwachstelle Spectre v1:                Mitigation; __user pointer sanitization\nSchwachstelle Spectre v2:                Mitigation; CSV2, BHB\nSchwachstelle Srbds:                     Not affected\nSchwachstelle Tsa:                       Not affected\nSchwachstelle Tsx async abort:           Not affected\nSchwachstelle Vmscape:                   Not affected\n\n==============================\nVersions of relevant libraries\n==============================\n[pip3] flashinfer-python==0.6.16.post3\n[pip3] nccl4py==0.4.1\n[pip3] numpy==2.3.5\n[pip3] nvidia-cublas==13.1.1.3\n[pip3] nvidia-cuda-cccl==13.3.3.4.1\n[pip3] nvidia-cuda-crt==13.3.73\n[pip3] nvidia-cuda-cupti==13.0.85\n[pip3] nvidia-cuda-nvcc==13.2.78\n[pip3] nvidia-cuda-nvdisasm==13.3.73\n[pip3] nvidia-cuda-nvrtc==13.0.88\n[pip3] nvidia-cuda-runtime==13.0.96\n[pip3] nvidia-cuda-tileiras==13.2.78\n[pip3] nvidia-cudnn-cu13==9.20.0.48\n[pip3] nvidia-cudnn-frontend==1.25.0\n[pip3] nvidia-cufft==12.0.0.61\n[pip3] nvidia-cufile==1.15.1.6\n[pip3] nvidia-curand==10.4.0.35\n[pip3] nvidia-cusolver==12.0.4.66\n[pip3] nvidia-cusparse==12.6.3.3\n[pip3] nvidia-cusparselt-cu13==0.8.1\n[pip3] nvidia-cutlass-dsl==4.6.0\n[pip3] nvidia-cutlass-dsl-libs-base==4.6.0\n[pip3] nvidia-cutlass-dsl-libs-core==4.6.0\n[pip3] nvidia-cutlass-dsl-libs-cu12==4.6.0\n[pip3] nvidia-cutlass-dsl-libs-cu13==4.6.0\n[pip3] nvidia-ml-py==13.610.43\n[pip3] nvidia-nccl-cu13==2.29.7\n[pip3] nvidia-nvjitlink==13.0.88\n[pip3] nvidia-nvshmem-cu13==3.4.5\n[pip3] nvidia-nvtx==13.0.85\n[pip3] nvidia-nvvm==13.2.78\n[pip3] pyzmq==27.1.0\n[pip3] tokenspeed-triton==3.7.10.post20260531\n[pip3] torch==2.13.0+cu130\n[pip3] torch_c_dlpack_ext==0.1.5\n[pip3] torchaudio==2.11.0+cu130\n[pip3] torchcodec==0.14.0\n[pip3] torchvision==0.28.0+cu130\n[pip3] transformers==5.12.1\n[pip3] triton==3.7.1\n[conda] Could not collect\n\n==============================\n         vLLM Info\n==============================\nROCM Version                 : Could not collect\nvLLM Version                 : 0.27.1\nvLLM Build Flags:\n  CUDA Archs: Not Set; ROCm: Disabled; XPU: Disabled\nGPU Topology:\n        ESC[4mGPU0      CPU Affinity    NUMA Affinity   GPU NUMA IDESC[0m\nGPU0     X      0-19    0               N/A\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n\n==============================\n     Environment Variables\n==============================\nPYTORCH_NVML_BASED_CUDA_CHECK=1\nTORCHINDUCTOR_COMPILE_THREADS=1\nTORCHINDUCTOR_CACHE_DIR=/tmp/torchinductor_jschmied\n\n### 🐛 Describe the bug\n\nLoading a **quantized draft model** (speculative decoding) fails on the fused projections:\n\n```\nAttributeError: 'MergedColumnParallelLinear' object has no attribute 'data'\n```\n\n**Cause.** `configure_quant_config()` is called from `initialize_model()` with `vllm_config.quant_config` — the *target* model's config. A draft model builds its own config object in `get_draft_quant_config()` (`model_executor/models/utils.py`), which never passes through there, so its `packed_modules_mapping` stays the empty dict from `base_config.py`. `find_matched_target()` can then no longer map `gate_up_proj` back to `gate_proj`/`up_proj`, those layers are built **unquantized**, and their `weight_scale` has no target at load time.\n\nNon-fused layers (`down_proj`, `o_proj`) match without the mapping, so a quant kernel *is* selected and the failure looks unrelated to quantization.\n\n**Repro** — no GPU, no weights, just the draft checkpoint's `quantization_config`:\n\n```python\nc = CompressedTensorsConfig.from_config(draft_quant_cfg)\nprint(c.packed_modules_mapping)                       # {} — never populated\n\ntargets = list(c.target_scheme_map)\nfind_matched_target(\"layers.0.mlp.gate_up_proj\", None, targets, {})\n# -> None\nfind_matched_target(\"layers.0.mlp.gate_up_proj\", None, targets,\n                    {\"gate_up_proj\": [\"gate_proj\", \"up_proj\"]})\n# -> 're:.*mlp\\.(gate|up|down)_proj$'\n```\n\nObserved with a compressed-tensors FP8 (`strategy: channel`) draft model; the draft model class already carries the correct mapping by inheritance — it just never reaches the config. Any quantized drafter with fused projections is affected.\n\n**Fix** in `get_draft_quant_config()`:\n\n```python\nquant_config = VllmConfig.get_quantization_config(draft_model_config, draft_load_config)\nif quant_config is not None:\n    draft_cls, _ = get_model_architecture(draft_model_config)\n    configure_quant_config(quant_config, draft_cls)\nreturn quant_config\n```\n\n### Before submitting a new issue...\n\n- [x] Make sure you already searched for relevant issues, and asked the chatbot living at the bottom right corner of the [documentation page](https://docs.vllm.ai/en/latest/), which can answer lots of frequently asked questions.",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/vllm-project/vllm/issues/53116/reactions",
+    "total_count": 1,
+    "+1": 1,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/vllm-project/vllm/issues/53116/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

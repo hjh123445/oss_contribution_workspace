@@ -1,0 +1,103 @@
+{
+  "url": "https://api.github.com/repos/vllm-project/vllm/issues/42019",
+  "repository_url": "https://api.github.com/repos/vllm-project/vllm",
+  "labels_url": "https://api.github.com/repos/vllm-project/vllm/issues/42019/labels{/name}",
+  "comments_url": "https://api.github.com/repos/vllm-project/vllm/issues/42019/comments",
+  "events_url": "https://api.github.com/repos/vllm-project/vllm/issues/42019/events",
+  "html_url": "https://github.com/vllm-project/vllm/issues/42019",
+  "id": 4403654304,
+  "node_id": "I_kwDOI7xefs8AAAABBnpuoA",
+  "number": 42019,
+  "title": "[Bug]: `prompt_logprobs` depends on request order when prefix caching is enabled",
+  "user": {
+    "login": "sangsq",
+    "id": 16742808,
+    "node_id": "MDQ6VXNlcjE2NzQyODA4",
+    "avatar_url": "https://avatars.githubusercontent.com/u/16742808?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/sangsq",
+    "html_url": "https://github.com/sangsq",
+    "followers_url": "https://api.github.com/users/sangsq/followers",
+    "following_url": "https://api.github.com/users/sangsq/following{/other_user}",
+    "gists_url": "https://api.github.com/users/sangsq/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/sangsq/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/sangsq/subscriptions",
+    "organizations_url": "https://api.github.com/users/sangsq/orgs",
+    "repos_url": "https://api.github.com/users/sangsq/repos",
+    "events_url": "https://api.github.com/users/sangsq/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/sangsq/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 5135047172,
+      "node_id": "LA_kwDOI7xefs8AAAABMhKaBA",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "archived_at": null,
+      "archived_by": null
+    },
+    {
+      "id": 7648877658,
+      "node_id": "LA_kwDOI7xefs8AAAABx-icWg",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/stale",
+      "name": "stale",
+      "color": "ededed",
+      "default": false,
+      "description": "Over 90 days of inactivity",
+      "archived_at": null,
+      "archived_by": null
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 2,
+  "created_at": "2026-05-08T03:54:22Z",
+  "updated_at": "2026-10-04T02:17:49Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Your current environment\n\n<details>\n<summary>The output of <code>python collect_env.py</code></summary>\n\n```text\n==============================\n        System Info\n==============================\nOS                           : Ubuntu 24.04.4 LTS (x86_64)\nGCC version                  : (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nClang version                : Could not collect\nCMake version                : version 4.3.1\nLibc version                 : glibc-2.39\n\n==============================\n       PyTorch Info\n==============================\nPyTorch version              : 2.10.0+cu128\nIs debug build               : False\nCUDA used to build PyTorch   : 12.8\nROCM used to build PyTorch   : N/A\nXPU used to build PyTorch    : N/A\n\n==============================\n      Python Environment\n==============================\nPython version               : 3.11.7 (main, Dec 15 2023, 18:12:31) [GCC 11.2.0] (64-bit runtime)\nPython platform              : Linux-6.8.0-111-generic-x86_64-with-glibc2.39\n    \n==============================\n       CUDA / GPU Info\n==============================\nIs CUDA available            : True\nCUDA runtime version         : 12.0.140\nCUDA_MODULE_LOADING set to   : \nGPU models and configuration : \nGPU 0: NVIDIA GeForce RTX 4090\nGPU 1: NVIDIA GeForce RTX 4090\n\nNvidia driver version        : 570.172.08\ncuDNN version                : Probably one of the following:\n/usr/lib/x86_64-linux-gnu/libcudnn.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_adv.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_cnn.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_engines_precompiled.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_engines_runtime_compiled.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_graph.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_heuristic.so.9.7.1\n/usr/lib/x86_64-linux-gnu/libcudnn_ops.so.9.7.1\nHIP runtime version          : N/A\nMIOpen runtime version       : N/A\nIs XNNPACK available         : True\n\n==============================\n          CPU Info\n==============================\nArchitecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  32\nOn-line CPU(s) list:                     0-31\nVendor ID:                               GenuineIntel\nModel name:                              13th Gen Intel(R) Core(TM) i9-13900K\nCPU family:                              6\nModel:                                   183\nThread(s) per core:                      2\nCore(s) per socket:                      24\nSocket(s):                               1\nStepping:                                1\nCPU(s) scaling MHz:                      30%\nCPU max MHz:                             5800.0000\nCPU min MHz:                             800.0000\nBogoMIPS:                                5990.40\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb intel_pt sha_ni xsaveopt xsavec xgetbv1 xsaves split_lock_detect user_shstk avx_vnni dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp hwp_pkg_req hfi vnmi umip pku ospke waitpkg gfni vaes vpclmulqdq tme rdpid movdiri movdir64b fsrm md_clear serialize pconfig arch_lbr ibt flush_l1d arch_capabilities ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               896 KiB (24 instances)\nL1i cache:                               1.3 MiB (24 instances)\nL2 cache:                                32 MiB (12 instances)\nL3 cache:                                36 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-31\nVulnerability Gather data sampling:      Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Reg file data sampling:    Mitigation; Clear Register File\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n\n==============================\nVersions of relevant libraries\n==============================\n[pip3] flake8==6.0.0\n[pip3] flashinfer-python==0.6.6\n[pip3] mypy==1.8.0\n[pip3] mypy-extensions==1.0.0\n[pip3] numpy==2.4.4\n[pip3] numpydoc==1.5.0\n[pip3] nvidia-cublas-cu12==12.8.4.1\n[pip3] nvidia-cuda-cupti-cu12==12.8.90\n[pip3] nvidia-cuda-nvrtc-cu12==12.8.93\n[pip3] nvidia-cuda-runtime-cu12==12.8.90\n[pip3] nvidia-cudnn-cu12==9.10.2.21\n[pip3] nvidia-cudnn-frontend==1.18.0\n[pip3] nvidia-cufft-cu12==11.3.3.83\n[pip3] nvidia-cufile-cu12==1.13.1.3\n[pip3] nvidia-curand-cu12==10.3.9.90\n[pip3] nvidia-cusolver-cu12==11.7.3.90\n[pip3] nvidia-cusparse-cu12==12.5.8.93\n[pip3] nvidia-cusparselt-cu12==0.7.1\n[pip3] nvidia-cutlass-dsl==4.5.0.dev0\n[pip3] nvidia-cutlass-dsl-libs-base==4.5.0.dev0\n[pip3] nvidia-ml-py==13.595.45\n[pip3] nvidia-nccl-cu12==2.27.5\n[pip3] nvidia-nvjitlink-cu12==12.8.93\n[pip3] nvidia-nvshmem-cu12==3.4.5\n[pip3] nvidia-nvtx-cu12==12.8.90\n[pip3] pyzmq==25.1.2\n[pip3] torch==2.10.0\n[pip3] torch_c_dlpack_ext==0.1.5\n[pip3] torchaudio==2.10.0\n[pip3] torchvision==0.25.0\n[pip3] transformers==4.57.6\n[pip3] triton==3.6.0\n[conda] _anaconda_depends         2024.02             py311_mkl_1  \n[conda] blas                      1.0                         mkl  \n[conda] cuda-cudart               12.1.105                      0    nvidia\n[conda] cuda-cupti                12.1.105                      0    nvidia\n[conda] cuda-libraries            12.1.0                        0    nvidia\n[conda] cuda-nvrtc                12.1.105                      0    nvidia\n[conda] cuda-nvtx                 12.1.105                      0    nvidia\n[conda] cuda-opencl               12.4.127                      0    nvidia\n[conda] cuda-runtime              12.1.0                        0    nvidia\n[conda] ffmpeg                    4.3                  hf484d3e_0    pytorch\n[conda] flashinfer-python         0.6.6                    pypi_0    pypi\n[conda] libcublas                 12.1.0.26                     0    nvidia\n[conda] libcufft                  11.0.2.4                      0    nvidia\n[conda] libcufile                 1.9.1.3                       0    nvidia\n[conda] libcurand                 10.3.5.147                    0    nvidia\n[conda] libcusolver               11.4.4.55                     0    nvidia\n[conda] libcusparse               12.0.2.55                     0    nvidia\n[conda] libjpeg-turbo             2.0.0                h9bf148f_0    pytorch\n[conda] libnpp                    12.0.2.50                     0    nvidia\n[conda] libnvjitlink              12.1.105                      0    nvidia\n[conda] libnvjpeg                 12.1.1.14                     0    nvidia\n[conda] mkl                       2023.1.0         h213fc3f_46344  \n[conda] mkl-service               2.4.0           py311h5eee18b_1  \n[conda] mkl_fft                   1.3.8           py311h5eee18b_0  \n[conda] mkl_random                1.2.4           py311hdb19cb5_0  \n[conda] numpy                     2.4.4                    pypi_0    pypi\n[conda] numpydoc                  1.5.0           py311h06a4308_0  \n[conda] nvidia-cublas-cu12        12.8.4.1                 pypi_0    pypi\n[conda] nvidia-cuda-cupti-cu12    12.8.90                  pypi_0    pypi\n[conda] nvidia-cuda-nvrtc-cu12    12.8.93                  pypi_0    pypi\n[conda] nvidia-cuda-runtime-cu12  12.8.90                  pypi_0    pypi\n[conda] nvidia-cudnn-cu12         9.10.2.21                pypi_0    pypi\n[conda] nvidia-cudnn-frontend     1.18.0                   pypi_0    pypi\n[conda] nvidia-cufft-cu12         11.3.3.83                pypi_0    pypi\n[conda] nvidia-cufile-cu12        1.13.1.3                 pypi_0    pypi\n[conda] nvidia-curand-cu12        10.3.9.90                pypi_0    pypi\n[conda] nvidia-cusolver-cu12      11.7.3.90                pypi_0    pypi\n[conda] nvidia-cusparse-cu12      12.5.8.93                pypi_0    pypi\n[conda] nvidia-cusparselt-cu12    0.7.1                    pypi_0    pypi\n[conda] nvidia-cutlass-dsl        4.5.0.dev0               pypi_0    pypi\n[conda] nvidia-cutlass-dsl-libs-base 4.5.0.dev0               pypi_0    pypi\n[conda] nvidia-ml-py              13.595.45                pypi_0    pypi\n[conda] nvidia-nccl-cu12          2.27.5                   pypi_0    pypi\n[conda] nvidia-nvjitlink-cu12     12.8.93                  pypi_0    pypi\n[conda] nvidia-nvshmem-cu12       3.4.5                    pypi_0    pypi\n[conda] nvidia-nvtx-cu12          12.8.90                  pypi_0    pypi\n[conda] pytorch-cuda              12.1                 ha16c6d3_5    pytorch\n[conda] pytorch-mutex             1.0                        cuda    pytorch\n[conda] pyzmq                     25.1.2          py311h6a678d5_0  \n[conda] torch                     2.10.0                   pypi_0    pypi\n[conda] torch-c-dlpack-ext        0.1.5                    pypi_0    pypi\n[conda] torchaudio                2.10.0                   pypi_0    pypi\n[conda] torchvision               0.25.0                   pypi_0    pypi\n[conda] transformers              4.57.6                   pypi_0    pypi\n[conda] triton                    3.6.0                    pypi_0    pypi\n\n==============================\n         vLLM Info\n==============================\nROCM Version                 : Could not collect\nvLLM Version                 : 0.19.0\nvLLM Build Flags:\n  CUDA Archs: Not Set; ROCm: Disabled; XPU: Disabled\nGPU Topology:\n        GPU0    GPU1    CPU Affinity    NUMA Affinity   GPU NUMA ID\nGPU0     X      PHB     0-31    0               N/A\nGPU1    PHB      X      0-31    0               N/A\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n\n==============================\n     Environment Variables\n==============================\nPYTORCH_NVML_BASED_CUDA_CHECK=1\n```\n\n</details>\n\n\n### Describe the bug\n\nI found that `prompt_logprobs` for the same fixed token prompts can change when the same prompts are scored in a different batch order.\n\nThis is a scoring-only repro: no sampling path is involved. Each prompt is fixed token ids, and logprobs are read via `lp_dict[token_id].logprob`.\n\nWith `enable_prefix_caching=True` (default), reordering the requests changes per-token logprobs for the same prompt. With `enable_prefix_caching=False`, the same test prints exact zeros.\n\n## Expected behavior\n\nReordering independent requests in a batch should not change:\n\n```text\nlog p(t_k | t_<k)\n```\n\nfor any fixed prompt.\n\n## Repro\n\n```python\nimport gc\nimport torch\nfrom vllm import LLM, SamplingParams\n\nPROMPTS = [\n    [1, 10408, 15, 3312, 16315, 7519, 47932, 247, 16204, 275, 4255, 20098, 19083, 15, 2064, 6505, 347, 11853, 665, 1978, 368, 1977, 432, 4076, 8737, 13, 12868, 342, 326, 28148, 2929, 13],\n    [2, 187, 6759, 16, 681, 16, 12929, 316, 14, 88, 1087, 16, 73, 1976, 16, 73, 15, 5581, 2, 1387, 4311, 187, 7330, 14, 9150, 9283, 608, 14, 2420, 187, 7330, 14],\n    [3, 16440, 323, 368, 24174, 634, 12108, 13, 38857, 17087, 294, 4399, 19083, 15, 2064, 368, 971, 11853, 14565, 1978, 368, 1977, 432, 634, 9781, 13, 403, 1469, 281, 320, 8261, 13],\n]\n\ndef score(llm, order):\n    params = SamplingParams(\n        n=1,\n        max_tokens=1,\n        temperature=0.0,\n        prompt_logprobs=0,\n        detokenize=False,\n    )\n    outputs = llm.generate([PROMPTS[i] for i in order], params)\n\n    by_first_token = {}\n    for ro in outputs:\n        vals = [0.0]\n        for lp_dict, token_id in zip(ro.prompt_logprobs[1:], ro.prompt_token_ids[1:]):\n            vals.append(float(lp_dict[token_id].logprob))\n        by_first_token[int(ro.prompt_token_ids[0])] = torch.tensor(vals)\n    return by_first_token\n\ndef print_diff(label, ref, cur):\n    print(label)\n    for first_token in sorted(ref):\n        diff = (cur[first_token] - ref[first_token]).abs()\n        pos = int(diff.argmax())\n        print(\n            f\"  prompt starting with {first_token}: \"\n            f\"max={diff.max().item():.6f} at pos={pos} \"\n            f\"ref={ref[first_token][pos].item():.6f} \"\n            f\"cur={cur[first_token][pos].item():.6f}\"\n        )\n\nllm = LLM(\n    \"EleutherAI/pythia-14m\",\n    dtype=\"float32\",\n    gpu_memory_utilization=0.5,\n    # enable_prefix_caching=False makes this repro print exact zeros.\n)\n\ntry:\n    ref = score(llm, (0, 1, 2))\n    same_order = score(llm, (0, 1, 2))\n    shuffled_order = score(llm, (2, 0, 1))\n\n    print_diff(\"same order repeated:\", ref, same_order)\n    print_diff(\"after scoring shuffled order (2, 0, 1):\", ref, shuffled_order)\nfinally:\n    try:\n        llm.llm_engine.engine_core.shutdown()\n    except Exception:\n        pass\n    del llm\n    gc.collect()\n    if torch.cuda.is_available():\n        torch.cuda.empty_cache()\n```\n\n## Output\n\n```text\nsame order repeated:\n  prompt starting with 1: max=0.000000 at pos=0 ref=0.000000 cur=0.000000\n  prompt starting with 2: max=0.000000 at pos=0 ref=0.000000 cur=0.000000\n  prompt starting with 3: max=0.000000 at pos=0 ref=0.000000 cur=0.000000\n\nafter scoring shuffled order (2, 0, 1):\n  prompt starting with 1: max=0.037937 at pos=30 ref=-5.427786 cur=-5.465723\n  prompt starting with 2: max=0.013506 at pos=15 ref=-2.306305 cur=-2.319810\n  prompt starting with 3: max=0.022612 at pos=13 ref=-2.395505 cur=-2.372894\n```\n\n## Environment\n\n```text\nvllm 0.19.0\ntorch 2.10.0+cu128\nCUDA 12.8\nGPU: RTX 4090\nModel: EleutherAI/pythia-14m\ndtype: float32\n```\n\n## Workaround\n\nSetting `enable_prefix_caching=False` makes the same repro print exact zeros.\n\n\n### Before submitting a new issue...\n\n- [x] Make sure you already searched for relevant issues, and asked the chatbot living at the bottom right corner of the [documentation page](https://docs.vllm.ai/en/latest/), which can answer lots of frequently asked questions.",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/vllm-project/vllm/issues/42019/reactions",
+    "total_count": 1,
+    "+1": 1,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/vllm-project/vllm/issues/42019/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

@@ -1,0 +1,92 @@
+{
+  "url": "https://api.github.com/repos/vllm-project/vllm/issues/60685",
+  "repository_url": "https://api.github.com/repos/vllm-project/vllm",
+  "labels_url": "https://api.github.com/repos/vllm-project/vllm/issues/60685/labels{/name}",
+  "comments_url": "https://api.github.com/repos/vllm-project/vllm/issues/60685/comments",
+  "events_url": "https://api.github.com/repos/vllm-project/vllm/issues/60685/events",
+  "html_url": "https://github.com/vllm-project/vllm/issues/60685",
+  "id": 5766504075,
+  "node_id": "I_kwDOI7xefs8AAAABV7Xeiw",
+  "number": 60685,
+  "title": "[Bug]: EPLB counts load for the wrong expert when step_interval < window_size",
+  "user": {
+    "login": "almogtavor",
+    "id": 70065337,
+    "node_id": "MDQ6VXNlcjcwMDY1MzM3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/70065337?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/almogtavor",
+    "html_url": "https://github.com/almogtavor",
+    "followers_url": "https://api.github.com/users/almogtavor/followers",
+    "following_url": "https://api.github.com/users/almogtavor/following{/other_user}",
+    "gists_url": "https://api.github.com/users/almogtavor/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/almogtavor/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/almogtavor/subscriptions",
+    "organizations_url": "https://api.github.com/users/almogtavor/orgs",
+    "repos_url": "https://api.github.com/users/almogtavor/repos",
+    "events_url": "https://api.github.com/users/almogtavor/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/almogtavor/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 5135047172,
+      "node_id": "LA_kwDOI7xefs8AAAABMhKaBA",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "archived_at": null,
+      "archived_by": null
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 0,
+  "created_at": "2026-10-08T17:55:23Z",
+  "updated_at": "2026-10-11T11:24:00Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "CONTRIBUTOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Your current environment\nAny EPLB setup with eplb_config step_interval smaller than window_size.\n\n### Describe the bug\nEPLB records load per physical slot. When step_interval < window_size only step_interval rows of the window are refreshed between two rearranges. The other rows still hold load recorded under the old map. The next rearrange reads them with the new map so that load is counted for whichever expert now sits in the slot.\n\nSmall example with 2 experts, 2 slots, window_size=4 and step_interval=2. Expert 0 is hot and expert 1 is idle. After a rearrange that swaps them, the window holds two rows with load in slot 0 (old map) and two rows with load in slot 1 (new map). The next rearrange maps slot 0 to expert 1, so the idle expert looks as hot as expert 0.\n\nAsync EPLB has the same problem per layer, since each layer switches to its new map in a later step.\n\nThe defaults (window_size=1000, step_interval=3000) are not affected, because every rearrange starts from a fully refreshed window.\n\n#58473 fixed this for elastic EP reshuffles and noted that regular EPLB still needs a separate fix.\n",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/vllm-project/vllm/issues/60685/reactions",
+    "total_count": 1,
+    "+1": 1,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/vllm-project/vllm/issues/60685/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

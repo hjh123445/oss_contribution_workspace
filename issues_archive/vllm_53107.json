@@ -1,0 +1,103 @@
+{
+  "url": "https://api.github.com/repos/vllm-project/vllm/issues/53107",
+  "repository_url": "https://api.github.com/repos/vllm-project/vllm",
+  "labels_url": "https://api.github.com/repos/vllm-project/vllm/issues/53107/labels{/name}",
+  "comments_url": "https://api.github.com/repos/vllm-project/vllm/issues/53107/comments",
+  "events_url": "https://api.github.com/repos/vllm-project/vllm/issues/53107/events",
+  "html_url": "https://github.com/vllm-project/vllm/issues/53107",
+  "id": 5203670214,
+  "node_id": "I_kwDOI7xefs8AAAABNim0xg",
+  "number": 53107,
+  "title": "[Bug]: LinearBase.load_weights substitutes the module for a missing parameter, surfacing as a confusing AttributeError",
+  "user": {
+    "login": "jschmied",
+    "id": 600316,
+    "node_id": "MDQ6VXNlcjYwMDMxNg==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/600316?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/jschmied",
+    "html_url": "https://github.com/jschmied",
+    "followers_url": "https://api.github.com/users/jschmied/followers",
+    "following_url": "https://api.github.com/users/jschmied/following{/other_user}",
+    "gists_url": "https://api.github.com/users/jschmied/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/jschmied/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/jschmied/subscriptions",
+    "organizations_url": "https://api.github.com/users/jschmied/orgs",
+    "repos_url": "https://api.github.com/users/jschmied/repos",
+    "events_url": "https://api.github.com/users/jschmied/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/jschmied/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 5135047172,
+      "node_id": "LA_kwDOI7xefs8AAAABMhKaBA",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "archived_at": null,
+      "archived_by": null
+    },
+    {
+      "id": 9988761457,
+      "node_id": "LA_kwDOI7xefs8AAAACU2BncQ",
+      "url": "https://api.github.com/repos/vllm-project/vllm/labels/quantization",
+      "name": "quantization",
+      "color": "62bfab",
+      "default": false,
+      "description": "",
+      "archived_at": null,
+      "archived_by": null
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 0,
+  "created_at": "2026-08-20T13:00:44Z",
+  "updated_at": "2026-08-20T13:00:51Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "CONTRIBUTOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Your current environment\n\n0.27.1\nenv - doesn't mater for this\n\n### 🐛 Describe the bug\n\nIn `LinearBase.load_weights` the lookup falls back to `self` when the parameter does not exist:\n\n```python\nparam: Parameter\nif \".\" in name:\n    submodule, _, attr = name.rpartition(\".\")\n    param = getattr(self.get_submodule(submodule), attr, self)\n```\n\n`self` is the *module*, not a `Parameter`, so the annotation one line above is violated. Loading then proceeds and fails several frames later inside the module's own `weight_loader`:\n\n```\nFile \"vllm/model_executor/layers/linear.py\", line 732, in weight_loader\n    param_data = param.data\nAttributeError: 'MergedColumnParallelLinear' object has no attribute 'data'\n```\n\nNothing in that message names the tensor that could not be resolved.\n\n**Repro:** load a quantized DFlash2 draft model (compressed-tensors FP8, `strategy: channel`). `qwen3_dflash.py` fuses q/k/v and gate/up through explicit per-name entries (`\".q_proj\": (\".qkv_proj\", \"q\")`) and defines no `stacked_params_mapping`, so `...mlp.gate_proj.weight_scale` does not resolve, the module is substituted, and the error above appears instead of \"no such parameter\".\n\n**Patch** — keeps the fallback, refuses to load into a non-parameter:\n\n```diff\n             if param is None and name == \"bias\":\n                 continue\n+            if not isinstance(param, torch.nn.Parameter):\n+                raise ValueError(\n+                    f\"{self.prefix}: cannot load {name!r} — no such parameter, \"\n+                    f\"got {type(param).__name__} instead. This usually means the \"\n+                    f\"checkpoint carries a tensor the layer does not declare, e.g. a \"\n+                    f\"quantization scale on a layer built without a quant_config.\"\n+                )\n             param.weight_loader(param, loaded_weight, shard_id)\n```\n\n### Before submitting a new issue...\n\n- [x] Make sure you already searched for relevant issues, and asked the chatbot living at the bottom right corner of the [documentation page](https://docs.vllm.ai/en/latest/), which can answer lots of frequently asked questions.",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/vllm-project/vllm/issues/53107/reactions",
+    "total_count": 1,
+    "+1": 1,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/vllm-project/vllm/issues/53107/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}

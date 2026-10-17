@@ -1,0 +1,92 @@
+{
+  "url": "https://api.github.com/repos/sgl-project/sglang/issues/31084",
+  "repository_url": "https://api.github.com/repos/sgl-project/sglang",
+  "labels_url": "https://api.github.com/repos/sgl-project/sglang/issues/31084/labels{/name}",
+  "comments_url": "https://api.github.com/repos/sgl-project/sglang/issues/31084/comments",
+  "events_url": "https://api.github.com/repos/sgl-project/sglang/issues/31084/events",
+  "html_url": "https://github.com/sgl-project/sglang/issues/31084",
+  "id": 4878678911,
+  "node_id": "I_kwDOLCAjRs8AAAABIsq7fw",
+  "number": 31084,
+  "title": "[Bug] Dynamic LoRA loading is effectively unsupported with --tokenizer-worker-num > 1 (per-worker registry, no cross-worker sync)",
+  "user": {
+    "login": "yushengsu-thu",
+    "id": 11704492,
+    "node_id": "MDQ6VXNlcjExNzA0NDky",
+    "avatar_url": "https://avatars.githubusercontent.com/u/11704492?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/yushengsu-thu",
+    "html_url": "https://github.com/yushengsu-thu",
+    "followers_url": "https://api.github.com/users/yushengsu-thu/followers",
+    "following_url": "https://api.github.com/users/yushengsu-thu/following{/other_user}",
+    "gists_url": "https://api.github.com/users/yushengsu-thu/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/yushengsu-thu/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/yushengsu-thu/subscriptions",
+    "organizations_url": "https://api.github.com/users/yushengsu-thu/orgs",
+    "repos_url": "https://api.github.com/users/yushengsu-thu/repos",
+    "events_url": "https://api.github.com/users/yushengsu-thu/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/yushengsu-thu/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+    {
+      "id": 6403845269,
+      "node_id": "LA_kwDOLCAjRs8AAAABfbLslQ",
+      "url": "https://api.github.com/repos/sgl-project/sglang/labels/bug",
+      "name": "bug",
+      "color": "d73a4a",
+      "default": true,
+      "description": "Something isn't working",
+      "archived_at": null,
+      "archived_by": null
+    }
+  ],
+  "state": "open",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 2,
+  "created_at": "2026-07-14T00:06:00Z",
+  "updated_at": "2026-08-27T01:14:14Z",
+  "closed_at": null,
+  "assignee": null,
+  "author_association": "COLLABORATOR",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "### Checklist\n\n- [x] I searched related issues but found no solution.\n- [x] The bug persists in the latest version.\n- [x] Issues without environment info and a minimal reproducible demo are hard to resolve and may receive no feedback.\n- [x] If this is not a bug report but a general question, please start a discussion at https://github.com/sgl-project/sglang/discussions. Otherwise, it will be closed.\n- [x] Please use English. Otherwise, it will be closed.\n\n### Describe the bug\n\nDynamic LoRA adapter operations (`/load_lora_adapter`, `/unload_lora_adapter`, and the `from_tensors` / `from_distributed` variants) only mutate the LoRA registry of whichever tokenizer worker process happens to serve the HTTP request. With `--tokenizer-worker-num > 1` there is no cross-worker synchronization of that state, so a dynamically loaded adapter is only usable by requests that happen to be routed to the worker that served the load. This is neither guarded nor documented today — it fails per-request, depending on connection routing.\n\nNote this is **not** specific to any single endpoint: it is a property of the tokenizer-side control-plane state model. Adapters passed at startup via `--lora-paths` are unaffected (every worker seeds them at init).\n\n**Mechanism (code references, current main):**\n\n- Each tokenizer worker process constructs its own `LoRARegistry` and `lora_ref_cache`, seeded only from startup `--lora-paths` (`python/sglang/srt/managers/tokenizer_manager.py`, `init_lora`: `self.lora_registry = LoRARegistry(self.server_args.lora_paths)`; `lora_ref_cache` is seeded from the same list).\n- The dynamic load/unload handlers register/unregister only in the serving worker's registry (registration is deferred until backend success, then applied to that process's `lora_registry` / `lora_ref_cache`).\n- `MultiTokenizerRouter` broadcasts only pause/continue to the workers (\"Also broadcasts pause/continue to all tokenizer managers for consistent is_pause state\" — `multi_tokenizer_mixin.py`); no LoRA state is synced.\n- Generate requests resolve `lora_path -> lora_id` against the **local** worker's registry (`tokenizer_manager.py`: `obj.lora_id = await self.lora_registry.acquire(obj.lora_path)`), preceded by a hard error when the name is not in the local `lora_ref_cache`: `\"Got LoRA adapter that has never been loaded: {lora_path}\"`.\n\n**Expected behavior — one of:**\n\n1. **Guard**: reject dynamic LoRA endpoints when `tokenizer_worker_num > 1` with an explicit error — matching what #30913 now does for the `upsert` flag specifically (`_validate_lora_upsert_supported`).\n2. **Document**: state in the LoRA docs / server-args docs that dynamic loading requires `--tokenizer-worker-num 1`.\n3. **Support it properly** (larger project): either replicate registry mutations across workers via the `MultiTokenizerRouter` broadcast path (needs centralized `lora_id` minting, an ack barrier before the load returns 200, partial-failure semantics, and a story for per-worker LRU/eviction divergence under `--max-loaded-loras`), or move `lora_name -> lora_id` resolution to a single authority (scheduler side), so tokenizer workers stop holding load-bearing dynamic state.\n\nHappy to contribute option 1 or 2 as a small PR if maintainers agree on the direction.\n\n### Reproduction\n\n```bash\npython -m sglang.launch_server \\\n  --model-path meta-llama/Llama-3.2-1B-Instruct \\\n  --enable-lora --max-loras-per-batch 4 \\\n  --tokenizer-worker-num 2\n```\n\n1. `POST /load_lora_adapter` for adapter `X` → lands on worker A → 200.\n2. Send `/generate` requests with `lora_path=X` from fresh connections → requests landing on worker B fail with `\"Got LoRA adapter that has never been loaded: X\"`, requests landing on worker A succeed. Failure rate ≈ (N-1)/N, routing-dependent.\n3. Re-`POST /load_lora_adapter` for `X` (e.g. as a \"retry\") → if it lands on worker B, a fresh `lora_id` is minted and the scheduler-side duplicate-name check fails with `\"already loaded\"` — confusing, because from the client's view the adapter both \"doesn't exist\" (step 2) and \"already exists\" (step 3).\n\n### Environment\n\nEstablished by code inspection on current `main` (874fc07d9); the mechanism is version-independent — the per-worker `LoRARegistry` / `lora_ref_cache` construction and the local-only resolution path are visible at the references above. Originally observed while reviewing the RL multi-LoRA flow in #30912 / #30913; it predates those PRs.\n",
+  "closed_by": null,
+  "reactions": {
+    "url": "https://api.github.com/repos/sgl-project/sglang/issues/31084/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/sgl-project/sglang/issues/31084/timeline",
+  "performed_via_github_app": null,
+  "state_reason": null,
+  "pinned_comment": null
+}
